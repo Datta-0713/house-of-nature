@@ -126,7 +126,12 @@
             </div>
         </div>
         <div class="nav-right">
-            <!-- Space for spacing -->
+            <button class="nav-icon" aria-label="Search" id="search-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button>
         </div>
     </nav>
 
@@ -321,6 +326,12 @@
 
     <!-- Razorpay Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Search Overlay -->
+    <div id="search-container">
+        <button id="close-search">&times;</button>
+        <input type="text" id="search-input" placeholder="Search...">
+    </div>
 </body>
 
 </html>

@@ -38,64 +38,113 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.scrollTo(0, 0);
 
-    // Initial render attempt (if first image is cached/fast)
-    // We'll also rely on the first image's onload to trigger render
+    // --- Animation & Canvas Setup (Homepage Only) ---
     state.canvas = document.getElementById('hero-canvas');
-    if (!state.canvas) return;
-    state.ctx = state.canvas.getContext('2d');
+    if (state.canvas) {
+        // Disable scrolling ONLY if we are doing the animation
+        document.body.classList.add('noscroll');
 
-    resize();
-    window.addEventListener('resize', resize);
-    window.addEventListener('scroll', handleScroll);
+        state.ctx = state.canvas.getContext('2d');
 
-    // Immediate render to prevent blank canvas
-    render();
+        resize();
+        window.addEventListener('resize', resize);
+        window.addEventListener('scroll', handleScroll);
 
-    preloadImages();
+        // Immediate render
+        render();
+
+        preloadImages();
+    } else {
+        // If not on homepage, ensure scrolling is enabled
+        document.body.classList.remove('noscroll');
+    }
+
+    // --- Global Initializations (Run on ALL pages) ---
+    initializeCart();
+    setupNavEvents();
+    setupCartEvents();
+    setupModalEvents();
+
+    // Fetch products for global usage (search, modal, etc.)
+    // Note: shop.html does its own fetch, but this populates 'allProducts' for the modal
+    fetchAndRenderProducts();
 });
 
 /**
  * Image Preloading - Parallel Loading (All images at once)
  */
 function preloadImages() {
-    console.log('[DEBUG] Starting parallel preload of ALL images...');
+    console.log('[DEBUG] Starting Interlaced Preload...');
+    const loaderProgress = document.getElementById('loader-progress');
+    const loaderOverlay = document.getElementById('loader-overlay');
 
-    // Load all sections in parallel
-    for (let sectionIndex = 0; sectionIndex < CONFIG.totalSections; sectionIndex++) {
-        state.images[sectionIndex] = [];
+    let totalOddImages = 0;
+    let loadedOddImages = 0;
 
-        for (let f = 0; f < CONFIG.framesPerSection; f++) {
-            const img = new Image();
-            const frameStr = (f + 1).toString().padStart(3, '0');
-            img.src = `${CONFIG.folderNames[sectionIndex]}/${CONFIG.imagePrefix}${frameStr}${CONFIG.imageExtension}`;
-
-            img.onload = () => {
-                state.imagesLoaded++;
-
-                // Force first frame render
-                if (sectionIndex === 0 && f === 0) {
-                    render();
-                }
-
-                // Log progress every 50 images
-                if (state.imagesLoaded % 50 === 0) {
-                    console.log(`[PROGRESS] ${state.imagesLoaded}/${state.totalImages} images loaded`);
-                }
-
-                // All images loaded
-                if (state.imagesLoaded === state.totalImages) {
-                    console.log('[SUCCESS] All images loaded!');
-                }
-            };
-
-            img.onerror = () => {
-                console.warn(`[ERROR] Failed: ${img.src}`);
-                state.imagesLoaded++;
-            };
-
-            state.images[sectionIndex][f] = img;
-        }
+    // Calculate total odd images for Phase 1 progress
+    for (let s = 0; s < CONFIG.totalSections; s++) {
+        totalOddImages += Math.ceil(CONFIG.framesPerSection / 2);
     }
+
+    // Helper to load a batch of frames
+    const loadBatch = (startIndex, step, isPhase1) => {
+        for (let sectionIndex = 0; sectionIndex < CONFIG.totalSections; sectionIndex++) {
+            if (!state.images[sectionIndex]) state.images[sectionIndex] = [];
+
+            for (let f = startIndex; f < CONFIG.framesPerSection; f += step) {
+                // Skip if already exists (safety)
+                if (state.images[sectionIndex][f]) continue;
+
+                const img = new Image();
+                const frameStr = (f + 1).toString().padStart(3, '0');
+                img.src = `${CONFIG.folderNames[sectionIndex]}/${CONFIG.imagePrefix}${frameStr}${CONFIG.imageExtension}`;
+
+                const onImageLoadOrError = () => {
+                    state.imagesLoaded++; // Global total count
+
+                    // PHASE 1 LOGIC
+                    if (isPhase1) {
+                        loadedOddImages++;
+
+                        // Update UI (0-100% based on Phase 1 only)
+                        if (loaderProgress) {
+                            const percent = Math.round((loadedOddImages / totalOddImages) * 100);
+                            loaderProgress.innerText = `${percent}%`;
+                        }
+
+                        // Unlock when Phase 1 complete
+                        if (loadedOddImages === totalOddImages) {
+                            console.log('[SUCCESS] Phase 1 (Odd Frames) Complete! Unlocking...');
+                            if (loaderOverlay) loaderOverlay.classList.add('hidden');
+                            document.body.classList.remove('noscroll');
+
+                            // Start Phase 2 (Even Frames) in background
+                            setTimeout(() => loadBatch(1, 2, false), 100);
+                        }
+                    } else {
+                        // PHASE 2 LOGIC (Background)
+                        if (state.imagesLoaded === state.totalImages) {
+                            console.log('[SUCCESS] All images (Even frames) loaded!');
+                        }
+                    }
+
+                    // Force first frame render
+                    if (sectionIndex === 0 && f === 0) render();
+                };
+
+                img.onload = onImageLoadOrError;
+                img.onerror = () => {
+                    console.warn(`[ERROR] Failed: ${img.src}`);
+                    onImageLoadOrError();
+                };
+
+                state.images[sectionIndex][f] = img;
+            }
+        }
+    };
+
+    // Start Phase 1: Odd frames (Indices 0, 2, 4...)
+    loadBatch(0, 2, true);
 }
 
 /**
@@ -164,6 +213,12 @@ function performScrollCalculations() {
     // If scrolled PAST the animation range (and buffer is 0), just clamp to 1 (last frame)
     // We do NOT clearRect so the last frame stays visible behind the next section
 
+    // SCROLL GLITCH FIX: Fade out canvas if past the animation range
+    if (scrollY > animationScrollRange) {
+        state.canvas.style.opacity = '0';
+    } else {
+        state.canvas.style.opacity = '1';
+    }
 
     // Total frames across all sections
     const totalFrames = CONFIG.totalSections * CONFIG.framesPerSection;
@@ -199,25 +254,57 @@ function render() {
 
     // Safety check for frame index
     const frameIndex = state.currentFrame || 0;
-    const img = state.images[state.currentSection][frameIndex];
+    let img = state.images[state.currentSection][frameIndex];
+
+    // Fallback for Interlaced Loading (Phase 2 not done yet)
+    // If current frame (Even) is missing/not loaded, use previous frame (Odd)
+    if (!img || !img.complete || img.naturalWidth === 0) {
+        if (frameIndex > 0) {
+            const prevImg = state.images[state.currentSection][frameIndex - 1];
+            if (prevImg && prevImg.complete && prevImg.naturalWidth !== 0) {
+                img = prevImg;
+            }
+        }
+    }
 
     if (img && img.complete && img.naturalWidth !== 0) {
-        // "Cover" fit logic
+        // RESIZE LOGIC: Mobile vs Desktop
+        const isMobile = state.width < 768;
+
         const aspect = img.naturalWidth / img.naturalHeight;
         const canvasAspect = state.width / state.height;
 
         let drawW, drawH, offsetX, offsetY;
 
-        if (canvasAspect > aspect) {
-            drawW = state.width;
-            drawH = state.width / aspect;
-            offsetX = 0;
-            offsetY = (state.height - drawH) / 2;
-        } else {
-            drawW = state.height * aspect;
-            drawH = state.height;
+        if (isMobile) {
+            // MOBILE: "Contain" logic (Fit entire image)
+            // Use white background
+            state.ctx.fillStyle = '#ffffff';
+            state.ctx.fillRect(0, 0, state.width, state.height);
+
+            // Calculate scale to fit
+            const scale = Math.min(state.width / img.naturalWidth, state.height / img.naturalHeight);
+
+            drawW = img.naturalWidth * scale;
+            drawH = img.naturalHeight * scale;
+
+            // Center
             offsetX = (state.width - drawW) / 2;
-            offsetY = 0;
+            offsetY = (state.height - drawH) / 2;
+
+        } else {
+            // DESKTOP: "Cover" logic (Fill screen)
+            if (canvasAspect > aspect) {
+                drawW = state.width;
+                drawH = state.width / aspect;
+                offsetX = 0;
+                offsetY = (state.height - drawH) / 2;
+            } else {
+                drawW = state.height * aspect;
+                drawH = state.height;
+                offsetX = (state.width - drawW) / 2;
+                offsetY = 0;
+            }
         }
 
         state.ctx.drawImage(img, offsetX, offsetY, drawW, drawH);

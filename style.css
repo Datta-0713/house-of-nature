@@ -363,12 +363,24 @@ p {
 @media (max-width: 768px) {
     .navbar {
         padding: 0 1rem;
-        height: 60px;
+        height: 55px;
+    }
+
+    .nav-left,
+    .nav-right {
+        gap: 0.5rem;
+        /* Reduce gap to fit all icons */
+    }
+
+    /* Ensure all icons are visible */
+    #account-btn {
+        display: flex !important;
     }
 
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+        padding: 0 1rem;
     }
 
     #best-sellers {
@@ -376,13 +388,23 @@ p {
     }
 
     #best-sellers h2 {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 }
 
 @media (max-width: 480px) {
     .product-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        /* Keep 2 columns even on small mobile, clearer for e-com */
+        gap: 0.8rem;
+    }
+
+    .product-title {
+        font-size: 0.9rem;
+    }
+
+    .product-price {
+        font-size: 0.85rem;
     }
 }
 
@@ -862,14 +884,21 @@ p {
 
     .feature-content {
         width: 100%;
-        padding: 4rem 2rem;
+        padding: 3rem 1.5rem;
         align-items: center;
         text-align: center;
+        order: 2;
+        /* Image first? No, text first usually better for context, but design preference. Keeping text first. */
+    }
+
+    .feature-content h2 {
+        font-size: 2rem;
     }
 
     .feature-content p {
         margin-left: auto;
         margin-right: auto;
+        font-size: 0.95rem;
     }
 
     .feature-cta {
@@ -880,6 +909,8 @@ p {
         width: 100%;
         height: 300px;
         /* Fixed height for mobile */
+        order: 1;
+        /* Actually, image first often looks better */
     }
 }
 
@@ -1088,10 +1119,21 @@ p {
 @media (max-width: 768px) {
     .promo-grid {
         flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
 
     .promo-banner {
-        height: 500px;
+        height: 400px;
+        /* Reduce height for mobile */
+    }
+
+    #promo-blog-section {
+        padding: 2rem 1.5rem 3rem;
+    }
+
+    .blog-posts-header {
+        font-size: 1.8rem;
     }
 }
 
@@ -1201,6 +1243,22 @@ p {
         right: 20px;
         width: 50px;
         height: 50px;
+    }
+}
+
+/* Shop Page Specific Mobile */
+@media (max-width: 768px) {
+    .shop-header h1 {
+        font-size: 2.2rem;
+    }
+
+    .shop-header p {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .shop-header {
+        padding: 1.5rem 0;
     }
 }
 
@@ -1477,4 +1535,122 @@ p {
     .action-buttons-large {
         padding-bottom: env(safe-area-inset-bottom);
     }
+}
+
+/* --- Preloader Overlay --- */
+.noscroll {
+    overflow: hidden !important;
+    height: 100vh;
+}
+
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+#loader-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #1a1a1a;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+.loader-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    font-weight: 300;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.loader-progress {
+    margin-top: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* --- Search Overlay --- */
+#search-container {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 2000;
+    display: none;
+    /* Ensure it stays hidden initially */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#search-container[style*="display: flex"] {
+    display: flex !important;
+}
+
+#search-input {
+    width: 60%;
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    border: none;
+    border-bottom: 2px solid #1a1a1a;
+    background: transparent;
+    outline: none;
+    text-align: center;
+}
+
+#close-search {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    font-size: 3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 300;
+    color: #1a1a1a;
 }
