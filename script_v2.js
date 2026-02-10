@@ -55,52 +55,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Image Preloading
+ * Image Preloading - Parallel Loading (All images at once)
  */
-// Staggered Preloading
-function preloadImages(sectionIndex = 0) {
-    if (sectionIndex >= CONFIG.totalSections) {
-        console.log('All sections loaded');
-        return;
-    }
+function preloadImages() {
+    console.log('[DEBUG] Starting parallel preload of ALL images...');
 
-    console.log(`[DEBUG] Preloading Section ${sectionIndex}...`);
-    state.images[sectionIndex] = [];
-    let loadedInSection = 0;
+    // Load all sections in parallel
+    for (let sectionIndex = 0; sectionIndex < CONFIG.totalSections; sectionIndex++) {
+        state.images[sectionIndex] = [];
 
-    for (let f = 0; f < CONFIG.framesPerSection; f++) {
-        const img = new Image();
-        const frameStr = (f + 1).toString().padStart(3, '0');
-        img.src = `${CONFIG.folderNames[sectionIndex]}/${CONFIG.imagePrefix}${frameStr}${CONFIG.imageExtension}`;
+        for (let f = 0; f < CONFIG.framesPerSection; f++) {
+            const img = new Image();
+            const frameStr = (f + 1).toString().padStart(3, '0');
+            img.src = `${CONFIG.folderNames[sectionIndex]}/${CONFIG.imagePrefix}${frameStr}${CONFIG.imageExtension}`;
 
-        img.onload = () => {
-            state.imagesLoaded++;
-            loadedInSection++;
+            img.onload = () => {
+                state.imagesLoaded++;
 
-            // Always re-render when frames load to update canvas
-            if (sectionIndex === 0 && f === 0) {
-                render(); // Force first frame render
-            }
+                // Force first frame render
+                if (sectionIndex === 0 && f === 0) {
+                    render();
+                }
 
-            // When this section is fully loaded, start the next one
-            if (loadedInSection === CONFIG.framesPerSection) {
-                console.log(`Section ${sectionIndex} Complete. Starting next...`);
-                // Use setTimeout to yield onto the next frame/tick
-                setTimeout(() => preloadImages(sectionIndex + 1), 50);
-            }
-        };
+                // Log progress every 50 images
+                if (state.imagesLoaded % 50 === 0) {
+                    console.log(`[PROGRESS] ${state.imagesLoaded}/${state.totalImages} images loaded`);
+                }
 
-        img.onerror = (e) => {
-            console.warn(`Failed: ${img.src}`);
-            // Still count as "loaded" to prevent stalling chain
-            loadedInSection++;
-            state.imagesLoaded++;
-            if (loadedInSection === CONFIG.framesPerSection) {
-                setTimeout(() => preloadImages(sectionIndex + 1), 50);
-            }
-        };
+                // All images loaded
+                if (state.imagesLoaded === state.totalImages) {
+                    console.log('[SUCCESS] All images loaded!');
+                }
+            };
 
-        state.images[sectionIndex][f] = img;
+            img.onerror = () => {
+                console.warn(`[ERROR] Failed: ${img.src}`);
+                state.imagesLoaded++;
+            };
+
+            state.images[sectionIndex][f] = img;
+        }
     }
 }
 
