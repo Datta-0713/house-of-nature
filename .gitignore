@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+ffmpeg.zip
+ffmpeg-git-full.7z
+verify_audit.py
+verify_audit_urllib.py
+cleanup_data.py
+hon_deploy_package.zip

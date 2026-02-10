@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - House of Natures</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            max-width: 150px;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .subtitle {
+            font-family: 'Outfit', sans-serif;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #333;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        button.secondary {
+            background-color: transparent;
+            color: #666;
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+
+        button.secondary:hover {
+            color: #000;
+            background-color: transparent;
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: red;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .toggle-auth {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .toggle-auth a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* OTP Input specific */
+        #otp-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <a href="index.html">
+            <img src="Logo_HON-removebg-preview (1).png" alt="HON Logo" class="login-logo">
+        </a>
+        <h2 id="page-title">Welcome Back</h2>
+        <p class="subtitle" id="page-subtitle">Login to access your account</p>
+
+        <form id="auth-form">
+            <!-- Name Field (Signup only) -->
+            <div class="form-group" id="name-group" style="display:none;">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="identifier">Email</label>
+                <input type="email" id="identifier" required placeholder="name@example.com">
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" id="submit-btn" style="margin-top: 1rem;">Log In</button>
+            <p class="error-msg" id="error-msg">Invalid Credentials</p>
+        </form>
+
+        <div class="toggle-auth">
+            <span id="toggle-text">New to House of Natures? </span>
+            <a id="toggle-btn">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let isSignup = false;
+
+        const form = document.getElementById('auth-form');
+        const title = document.getElementById('page-title');
+        const subtitle = document.getElementById('page-subtitle');
+        const nameGroup = document.getElementById('name-group');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const toggleText = document.getElementById('toggle-text');
+        const errorMsg = document.getElementById('error-msg');
+
+        // Toggle Login/Signup
+        toggleBtn.addEventListener('click', () => {
+            isSignup = !isSignup;
+            updateUI();
+        });
+
+        function updateUI() {
+            errorMsg.style.display = 'none';
+            if (isSignup) {
+                title.innerText = 'Create Account';
+                subtitle.innerText = 'Join us today';
+                nameGroup.style.display = 'block';
+                toggleText.innerText = 'Already have an account? ';
+                toggleBtn.innerText = 'Log In';
+                submitBtn.innerText = 'Sign Up';
+                document.getElementById('name').required = true;
+            } else {
+                title.innerText = 'Welcome Back';
+                subtitle.innerText = 'Login to access your account';
+                nameGroup.style.display = 'none';
+                toggleText.innerText = 'New to House of Natures? ';
+                toggleBtn.innerText = 'Sign Up';
+                submitBtn.innerText = 'Log In';
+                document.getElementById('name').required = false;
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            submitBtn.innerText = 'Processing...';
+
+            const email = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+
+            const endpoint = isSignup ? '/api/auth/signup' : '/api/auth/login';
+            // Note: form ID logic above toggles 'isSignup' boolean
+
+            const body = { email, password, name: isSignup ? name : undefined };
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // 1. Store Token & User Info
+                    localStorage.setItem('userToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user)); // Optional, for display name
+
+                    // 2. Handle Cart based on User Rule
+                    if (isSignup) {
+                        // RULE: "Initialize user data: Empty cart"
+                        // RULE: "Initialize... Empty order history"
+                        // We do NOT sync guest cart. Guest cart is abandoned or stays on device for guest mode?
+                        // "Logging in replaces guest cart with the correct user cart" applies to Login.
+                        // For Signup, "Empty cart". 
+                        // So we MUST clear the local 'cart' key to reflect the new empty user cart.
+                        localStorage.setItem('cart', JSON.stringify([]));
+
+                        window.location.href = 'index.html'; // Or profile-setup if needed
+                    } else {
+                        // LOGIN
+                        // RULE: "Load ONLY that user’s data"
+                        // RULE: "Fetch cart from backend... Replace any local cart"
+
+                        try {
+                            const cartRes = await fetch(`/api/user/cart/load?userId=${data.token}`);
+                            if (cartRes.ok) {
+                                const cartData = await cartRes.json();
+                                if (cartData.success) {
+                                    localStorage.setItem('cart', JSON.stringify(cartData.cart || []));
+                                } else {
+                                    // If load failed or empty, default to empty to be safe
+                                    localStorage.setItem('cart', JSON.stringify([]));
+                                }
+                            } else {
+                                localStorage.setItem('cart', JSON.stringify([]));
+                            }
+                        } catch (err) {
+                            console.error('Error loading remote cart:', err);
+                            // Fallback? Rule says "Replace any local cart". 
+                            // Safety: empty.
+                            localStorage.setItem('cart', JSON.stringify([]));
+                        }
+
+                        if (data.isAdmin) {
+                            window.location.href = 'admin/index.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }
+                } else {
+                    throw new Error(data.message || 'Authentication failed');
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = err.message || 'An error occurred';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.innerText = isSignup ? 'Sign Up' : 'Log In';
+            }
+        });
+    </script>
+</body>
+
+</html>

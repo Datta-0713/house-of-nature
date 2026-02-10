@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - House of Natures</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        /* Space for fixed nav */
+        .search-header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: #f9f9f9;
+            margin-bottom: 2rem;
+        }
+
+        .search-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-header p {
+            color: #666;
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 4rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Minimal Navbar -->
+    <nav class="navbar" style="position:fixed; top:0;">
+        <div class="nav-left">
+            <button class="nav-icon" onclick="window.location.href='index.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
+        <div class="nav-center">
+            <div class="logo-container" onclick="window.location.href='index.html'">
+                <h1 class="logo-main" style="font-size:1.5rem;">House of Natures</h1>
+            </div>
+        </div>
+        <div class="nav-right"></div>
+    </nav>
+
+    <div class="search-header">
+        <h1>Search Results</h1>
+        <p id="search-query-display">Showing results for "..."</p>
+    </div>
+
+    <div class="product-grid" id="search-results-grid">
+        <!-- Results -->
+    </div>
+
+    <script src="script_v2.js"></script> <!-- Re-use for product rendering logic if accessible -->
+    <script>
+        // Custom search logic override or extension
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('q') || '';
+            document.getElementById('search-query-display').innerText = `Showing results for "${query}"`;
+
+            if (!query) return;
+
+            // Fetch all products
+            try {
+                const res = await fetch('/api/products');
+                const products = await res.json();
+
+                const lowerQ = query.toLowerCase();
+                const filtered = products.filter(p =>
+                    p.title.toLowerCase().includes(lowerQ) ||
+                    (p.category && p.category.toLowerCase().includes(lowerQ)) ||
+                    (p.description && p.description.toLowerCase().includes(lowerQ))
+                );
+
+                const grid = document.getElementById('search-results-grid');
+                grid.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<div class="no-results">No products found matching your search.</div>';
+                } else {
+                    filtered.forEach(product => {
+                        // Reuse or recreate simple card logic
+                        // We can't easily reuse script.js functions unless they are global. 
+                        // script.js usually has an IIFE or similar. 
+                        // Let's assume we need to replicate basic card HTML here for safety.
+
+                        const displayImg = product.images && product.images[0] ? product.images[0] : 'placeholder.png';
+                        const hoverImg = product.images && product.images[1] ? product.images[1] : displayImg;
+
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `
+                            <div class="product-image">
+                                <img src="${displayImg}" alt="${product.title}" class="img-default">
+                                <img src="${hoverImg}" alt="${product.title}" class="img-hover">
+                            </div>
+                            <h3 class="product-title">${product.title}</h3>
+                            <div class="product-price">₹ ${product.price.toFixed(2)}</div>
+                        `;
+                        // Redirect to index with fullpage view? Or separate product page?
+                        // Current system uses index.html SPA-like modal. 
+                        // Hard to link directly to a modal state without hash routing.
+                        // Let's link to index.html and maybe we can add logic later to open modal.
+                        // For now, just a visual search result.
+                        card.addEventListener('click', () => {
+                            // Ideally, we'd open the modal. But we are on a different page.
+                            // We can go to index.html and maybe store target ID in sessionStorage?
+                            sessionStorage.setItem('openProduct', product.id);
+                            window.location.href = 'index.html';
+                        });
+
+                        grid.appendChild(card);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - HON</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4">
+    <style>
+        .cart-page {
+            padding-top: 100px;
+            /* Clear navbar */
+            min-height: 80vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 3rem;
+        }
+
+        .cart-table th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+        }
+
+        .cart-table td {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .cart-item-img {
+            width: 80px;
+            height: 100px;
+            object-fit: cover;
+            background: #f9f9f9;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+        }
+
+        .cart-summary {
+            background: #f9f9f9;
+            padding: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .total-row {
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-top: 1px solid #ddd;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .checkout-btn:hover {
+            background: #333;
+        }
+
+        .empty-cart-msg {
+            text-align: center;
+            margin-top: 3rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Nav (Simplified for now) -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html" style="text-decoration: none; color: inherit;">&larr; Back to Shop</a>
+        </div>
+        <div class="nav-center">
+            <div class="logo-container">
+                <img src="Logo_HON-removebg-preview (1).png" alt="HON Logo" class="logo-brand">
+            </div>
+        </div>
+        <div class="nav-right">
+            <!-- Space for spacing -->
+        </div>
+    </nav>
+
+    <div class="cart-page">
+        <h1>Your Cart</h1>
+
+        <div id="cart-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <script src="script_v2.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartContent = document.getElementById('cart-content');
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            if (cart.length === 0) {
+                cartContent.innerHTML = '<p class="empty-cart-msg">Your cart is currently empty.</p>';
+            } else {
+                let html = `
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>PRODUCT</th>
+                                <th>PRICE</th>
+                                <th>QUANTITY</th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                let subtotal = 0;
+
+                cart.forEach(item => {
+                    // Parse price: Handle both string "Rs. 1,200.00" and number 1200
+                    let priceNum = 0;
+                    if (typeof item.price === 'string') {
+                        priceNum = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+                    } else {
+                        priceNum = parseFloat(item.price);
+                    }
+
+                    const itemTotal = priceNum * item.quantity;
+                    subtotal += itemTotal;
+
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="cart-item-info">
+                                    <img src="${item.image}" alt="${item.title}" class="cart-item-img">
+                                    <span class="cart-item-title">${item.title}</span>
+                                </div>
+                            </td>
+                            <td>Rs. ${priceNum.toFixed(2)}</td>
+                            <td>${item.quantity}</td>
+                            <td>Rs. ${itemTotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>Rs. ${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax</span>
+                            <span>Included</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Total</span>
+                            <span>Rs. ${subtotal.toFixed(2)}</span>
+                        </div>
+                        <button id="cart-checkout-btn" class="checkout-btn" style="border:none; cursor:pointer;">Proceed to Buy</button>
+                    </div>
+                `;
+
+                cartContent.innerHTML = html;
+
+                // Wire up checkout button (using event delegation since it's dynamically created)
+                document.addEventListener('click', (e) => {
+                    if (e.target && e.target.id === 'cart-checkout-btn') {
+                        e.preventDefault();
+                        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        if (cart.length === 0) {
+                            alert('Your cart is empty!');
+                            return;
+                        }
+                        // Use the checkout logic from script_v2.js
+                        if (typeof window.openCheckoutModal === 'function') {
+                            window.checkoutState.cartItems = cart;
+                            window.openCheckoutModal();
+                        } else {
+                            console.error('Checkout modal not initialized');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay"
+        style="display:none; z-index: 2000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="max-width: 500px; width: 90%; background: white; border-radius: 8px; padding: 0; color: #000;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
+                <h2 class="modal-title" style="margin: 0; font-family: 'Playfair Display', serif;">BUY IT NOW</h2>
+                <button class="close-modal" id="close-checkout-btn"
+                    style="position: absolute; right: 20px; top: 20px; font-size: 30px; background: none; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <div class="modal-body" style="padding: 20px;">
+                <!-- Step 1: Method Selection -->
+                <div id="checkout-step-1">
+                    <h3 style="margin-top: 0;">Select Payment Method</h3>
+                    <div class="payment-options"
+                        style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                        <button class="option-btn" data-method="COD"
+                            style="padding:15px; text-align:left; border:1px solid #ddd; background:white; cursor:pointer; border-radius: 4px;">
+                            <strong>Cash on Delivery (COD)</strong>
+                            <p style="margin:0; font-size:0.9em; color:#666;">Pay when you receive the order.</p>
+                        </button>
+                        <button class="option-btn" data-method="ONLINE" id="online-payment-btn"
+                            style="padding:15px; text-align:left; border:1px solid #ddd; background:white; cursor:pointer; border-radius: 4px;">
+                            <strong>Online Payment</strong>
+                            <p style="margin:0; font-size:0.9em; color:#666;">Secure payment via Razorpay.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Details Form -->
+                <div id="checkout-step-2" style="display:none;">
+                    <h3 style="margin-top: 0;">Shipping Details</h3>
+                    <form id="checkout-form" style="margin-top:15px;">
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Full Name *</label>
+                            <input type="text" id="cust-name" required
+                                style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family: inherit;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Phone Number *</label>
+                            <input type="tel" id="cust-phone" required
+                                style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family: inherit;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Alternate Phone
+                                (Optional)</label>
+                            <input type="tel" id="cust-alt-phone"
+                                style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family: inherit;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Full Address *</label>
+                            <textarea id="cust-address" rows="3" required
+                                style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family:inherit;"></textarea>
+                        </div>
+                        <div class="modal-actions"
+                            style="display:flex; justify-content:space-between; margin-top:20px;">
+                            <button type="button" class="btn-text" id="back-to-step-1"
+                                style="background:none; border:none; cursor:pointer; text-decoration:underline;">Back</button>
+                            <button type="submit" class="btn-primary" id="proceed-to-pay-btn"
+                                style="padding:10px 20px; background:#1a1a1a; color:white; border:none; border-radius:4px; cursor:pointer;">Proceed</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 3: Success/Loading -->
+                <div id="checkout-step-3" style="display:none; text-align:center;">
+                    <div id="checkout-processing">
+                        <p>Processing...</p>
+                    </div>
+                    <div id="checkout-success" style="display:none;">
+                        <div style="color:green; font-size:3rem;">✓</div>
+                        <h3>Order Placed!</h3>
+                        <p>Order ID: <span id="success-order-id" style="font-weight:bold;"></span></p>
+                        <p id="payment-info-display"></p>
+                        <button id="send-whatsapp-btn" class="btn-primary"
+                            style="background:#25D366; border:none; margin-top:15px; padding:10px 20px; color:white; border-radius:4px; cursor:pointer;">
+                            Send Order on WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Razorpay Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "p1",
+    "title": "Bamboo Chair v1",
+    "price": 690,
+    "description": "I love wooden chairs",
+    "category": "furniture",
+    "isBestSeller": true,
+    "isBambooGift": true,
+    "images": [
+      "BEST SELLER/4. Bamboo Chairs/1.png",
+      "BEST SELLER/4. Bamboo Chairs/2.png"
+    ]
+  },
+  {
+    "id": "p2",
+    "title": "Bamboo Stool",
+    "price": 1200,
+    "category": "furniture",
+    "images": [
+      "BEST SELLER/2. Bamboo Stools/1.png",
+      "BEST SELLER/2. Bamboo Stools/2.png"
+    ],
+    "description": "Eco-friendly bamboo stool.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p3",
+    "title": "Ceiling Lamp",
+    "price": 1800,
+    "category": "lighting",
+    "images": [
+      "BEST SELLER/3. Ceiling Bamboo Lamps/1.png",
+      "BEST SELLER/3. Ceiling Bamboo Lamps/2.png"
+    ],
+    "description": "Elegant ceiling bamboo lamp.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p4",
+    "title": "Bamboo Basket",
+    "price": 800,
+    "category": "home-decor",
+    "images": [
+      "BEST SELLER/8. Bamboo Baskets/1.png",
+      "BEST SELLER/8. Bamboo Baskets/2.png"
+    ],
+    "description": "Handwoven bamboo basket.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p5",
+    "title": "Bamboo Comb",
+    "price": 150,
+    "category": "gifts",
+    "images": [
+      "BEST SELLER/5. Bamboo Combs/1.png",
+      "BEST SELLER/5. Bamboo Combs/2.png"
+    ],
+    "description": "Natural bamboo comb.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p6",
+    "title": "Bamboo Cutlery",
+    "price": 450,
+    "category": "kitchen-essentials",
+    "images": [
+      "BEST SELLER/6. Bamboo Cutlery/1.png",
+      "BEST SELLER/6. Bamboo Cutlery/2.png"
+    ],
+    "description": "Reusable bamboo cutlery set.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p7",
+    "title": "Table Lamp",
+    "price": 1500,
+    "category": "lighting",
+    "images": [
+      "BEST SELLER/7. Bamboo Table Lamp/1.png",
+      "BEST SELLER/7. Bamboo Table Lamp/2.png"
+    ],
+    "description": "Stylish bamboo table lamp.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  },
+  {
+    "id": "p8",
+    "title": "Floral Bag",
+    "price": 950,
+    "category": "bags",
+    "images": [
+      "BEST SELLER/1. Floral Bamboo Bags/1.png",
+      "BEST SELLER/1. Floral Bamboo Bags/2.png"
+    ],
+    "description": "Beautiful floral bamboo bag.",
+    "isBestSeller": true,
+    "isBambooGift": true
+  }
+]

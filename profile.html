@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - House of Natures</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            position: relative;
+        }
+
+        /* Override fixed for this page flow */
+
+        .profile-container {
+            max-width: 600px;
+            margin: 4rem auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            background: #eee;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: #888;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .logout-btn {
+            padding: 12px 30px;
+            background: white;
+            border: 1px solid #000;
+            color: #000;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #000;
+            color: white;
+        }
+
+        .back-link {
+            display: block;
+            margin-bottom: 2rem;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <div class="profile-avatar" id="avatar-display"></div>
+        <h1 id="user-name">Loading...</h1>
+        <p class="info-item" id="user-info">...</p>
+
+        <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #eee;">
+
+        <div class="orders-section">
+            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1rem;">Order History</h2>
+            <div id="orders-container" style="text-align: left;">
+                <p style="color: #999; text-align: center;">Loading orders...</p>
+            </div>
+        </div>
+
+        <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #eee;">
+
+        <button class="logout-btn" id="logout-btn">Log Out</button>
+    </div>
+
+    <script src="script_v2.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('userInfo') || 'null');
+
+        if (!user) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('user-name').innerText = user.name || 'User';
+            document.getElementById('user-info').innerText = user.identifier;
+
+            const avatarDiv = document.getElementById('avatar-display');
+            if (user.avatar) {
+                avatarDiv.innerHTML = `<img src="${user.avatar}" alt="Avatar">`;
+            } else {
+                avatarDiv.innerText = (user.name || 'U').charAt(0).toUpperCase();
+            }
+
+            // Fetch Orders
+            fetchOrders();
+        }
+
+        async function fetchOrders() {
+            const container = document.getElementById('orders-container');
+            const token = localStorage.getItem('userToken');
+
+            try {
+                const res = await fetch(`/api/user/orders?userId=${token}`);
+                if (!res.ok) throw new Error('Failed to fetch orders');
+
+                const data = await res.json();
+                if (data.success && data.orders.length > 0) {
+                    container.innerHTML = data.orders.map(order => `
+                        <div class="order-card" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600;">
+                                <span>Order #${order.id || 'N/A'}</span>
+                                <span>₹${order.total || 0}</span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                ${new Date(order.date).toLocaleDateString()} • ${order.items ? order.items.length : 0} items
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: #999; text-align: center;">No orders found.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<p style="color: red; text-align: center;">Unable to load order history.</p>';
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            // Strictly clear all user data
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userInfo');
+            localStorage.removeItem('cart'); // Critical: Clear cart so next guest/user starts fresh
+
+            // Optional: Notify server? Not strictly needed for JWT-less/session-less auth, 
+            // but good practice if we had session cookies.
+
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+
+</html>

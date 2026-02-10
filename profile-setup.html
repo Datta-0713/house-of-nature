@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup - House of Natures</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #eee;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 3rem;
+            color: #888;
+            border: 2px dashed #ddd;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-preview:hover {
+            border-color: #000;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        button.text-btn {
+            background: none;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        button.text-btn:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Setup Profile</h2>
+        <p style="color:#666; margin-bottom:2rem;">Add a profile photo to personalize your experience.</p>
+
+        <div class="avatar-preview" id="avatar-preview" onclick="document.getElementById('file-input').click()">
+            <span id="initials-placeholder">?</span>
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+
+        <button id="save-btn">Add Photo</button>
+        <button class="text-btn" id="skip-btn">Skip for Now</button>
+    </div>
+
+    <script src="script_v2.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const API_URL = '/api';
+
+        if (!user.id) window.location.href = 'login.html';
+
+        // Set initial
+        const initials = user.name ? user.name.charAt(0).toUpperCase() : '?';
+        document.getElementById('initials-placeholder').innerText = initials;
+
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('avatar-preview');
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}">`;
+                    document.getElementById('save-btn').innerText = 'Save Profile';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            if (selectedFile) {
+                // Upload logic
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    const base64String = reader.result.split(',')[1];
+                    try {
+                        const res = await fetch(`${API_URL}/upload`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ filename: selectedFile.name, image: base64String })
+                        });
+                        const data = await res.json();
+                        if (data.filepath) {
+                            updateProfile(data.filepath);
+                        }
+                    } catch (e) {
+                        alert('Upload failed');
+                    }
+                };
+                reader.readAsDataURL(selectedFile);
+            } else {
+                document.getElementById('file-input').click();
+            }
+        });
+
+        document.getElementById('skip-btn').addEventListener('click', () => {
+            // Check if we should generate an avatar image or just keep null
+            // For now, let's just save valid "Skpped" text or keep null so frontend generates Initial
+            window.location.href = 'index.html';
+        });
+
+        async function updateProfile(avatarPath) {
+            try {
+                const res = await fetch(`${API_URL}/user/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: user.id, avatar: avatarPath })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

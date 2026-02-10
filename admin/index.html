@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - House of Natures Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body id="admin-dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../Logo_HON-removebg-preview (1).png" alt="Logo" class="logo-icon">
+            <span class="brand-name">HON Admin</span>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-filter="all">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    All Products
+                </a>
+            </li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="furniture">Furniture</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="lighting">Lighting</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="home-decor">Home Decor</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="bags">Bags</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="kitchen-essentials">Kitchen</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" data-filter="gifts">Gifts</a></li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="nav-data" data-filter="data">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                        </path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Data
+                </a>
+            </li>
+        </ul>
+
+        <button class="logout-btn" id="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="margin-right:8px; width:18px">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+        </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h1 class="page-title" id="page-title">All Products</h1>
+            <button class="add-btn" id="add-product-btn">+ Add New Product</button>
+        </header>
+
+        <!-- Notification Area -->
+        <div id="notification"
+            style="display:none; padding: 10px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 20px;">
+            Changes saved successfully!
+        </div>
+
+        <div class="product-grid" id="admin-product-grid">
+            <!-- Dynamic Content -->
+        </div>
+
+        <!-- Data View Container (Hidden by default) -->
+        <div id="data-view" style="display:none;">
+            <!-- Settings Section -->
+            <div class="card"
+                style="margin-bottom: 2rem; padding: 1.5rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0;">Razorpay Configuration</h3>
+                <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label style="display:block; margin-bottom:5px; font-weight:500;">Key ID</label>
+                        <input type="text" id="razorpay-key-id" placeholder="rzp_test_..."
+                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display:block; margin-bottom:5px; font-weight:500;">Key Secret</label>
+                        <input type="password" id="razorpay-key-secret" placeholder="••••••••"
+                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                    </div>
+                    <button id="save-config-btn"
+                        style="padding: 10px 20px; background: #1a1a1a; color: white; border: none; border-radius: 4px; cursor: pointer;">Save
+                        Keys</button>
+                </div>
+                <p id="config-status" style="margin-top: 10px; font-size: 0.9rem; color: #666;"></p>
+            </div>
+
+            <div class="data-tabs"
+                style="margin-bottom: 20px; display:flex; gap:10px; border-bottom: 1px solid #eee; padding-bottom: 1px;">
+                <button class="data-tab-btn active" data-type="users">User Login Data</button>
+                <button class="data-tab-btn" data-type="carts">Cart Data</button>
+                <button class="data-tab-btn" data-type="orders">Orders Data</button>
+                <button class="data-tab-btn" data-type="archives">Saved / Archived</button>
+            </div>
+
+            <div id="data-table-container"
+                style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.05); overflow-x:auto;">
+                <!-- Table goes here -->
+                <p>Select a category to view data.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit/Add Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Edit Product</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+
+            <form id="product-form">
+                <input type="hidden" id="edit-product-id">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="edit-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" id="edit-price" required step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="edit-category"
+                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        <option value="furniture">Furniture</option>
+                        <option value="lighting">Lighting</option>
+                        <option value="home-decor">Home Decor</option>
+                        <option value="bags">Bags</option>
+                        <option value="kitchen-essentials">Kitchen Essentials</option>
+                        <option value="gifts">Gifts</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Images (Click to Upload/Change)</label>
+                    <div class="image-upload-container">
+                        <!-- 5 slots -->
+                        <div class="img-preview-box" data-index="0" id="img-slot-0">
+                            <span>Main</span>
+                        </div>
+                        <div class="img-preview-box" data-index="1" id="img-slot-1">
+                            <span>Hover</span>
+                        </div>
+                        <div class="img-preview-box" data-index="2" id="img-slot-2">
+                            <span>3</span>
+                        </div>
+                        <div class="img-preview-box" data-index="3" id="img-slot-3">
+                            <span>4</span>
+                        </div>
+                        <div class="img-preview-box" data-index="4" id="img-slot-4">
+                            <span>5</span>
+                        </div>
+                    </div>
+                    <input type="file" id="image-input" hidden accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit-description" rows="4"
+                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-family:inherit;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label style="display:flex; align-items:center; margin-bottom: 0.5rem;">
+                        <input type="checkbox" id="edit-bestseller" style="width:auto; margin-right:10px;">
+                        Show in Best Sellers
+                    </label>
+                    <label style="display:flex; align-items:center;">
+                        <input type="checkbox" id="edit-bamboogifts" style="width:auto; margin-right:10px;">
+                        Show in Bamboo Gifts
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancel-modal">Cancel</button>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
