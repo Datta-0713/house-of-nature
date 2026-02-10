@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', resize);
     window.addEventListener('scroll', handleScroll);
 
+    // Immediate render to prevent blank canvas
+    render();
+
     preloadImages();
 });
 
@@ -74,8 +77,10 @@ function preloadImages(sectionIndex = 0) {
             state.imagesLoaded++;
             loadedInSection++;
 
-            // Initial Render (First frame of first section)
-            if (sectionIndex === 0 && f === 0) render();
+            // Always re-render when frames load to update canvas
+            if (sectionIndex === 0 && f === 0) {
+                render(); // Force first frame render
+            }
 
             // When this section is fully loaded, start the next one
             if (loadedInSection === CONFIG.framesPerSection) {

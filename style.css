@@ -163,13 +163,46 @@ p {
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
+
+    /* Optimize canvas for mobile */
+    #hero-canvas {
+        height: 100vh;
+        width: 100vw;
+        object-fit: cover;
+    }
+
+    /* Adjust scroll sections for mobile */
+    .scroll-section {
+        height: 200vh;
+        /* Reduced from 250vh for faster scrolling */
+    }
+
     .content {
         margin: 0 1rem;
         width: auto;
+        max-width: 90%;
+        top: 10vh;
+        /* Closer to top on mobile */
     }
 
     h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        /* Smaller text for mobile */
+        line-height: 1.2;
+    }
+
+    p {
+        font-size: 0.95rem;
+    }
+
+    .scroll-indicator {
+        font-size: 0.8rem;
+    }
+
+    /* Adjust right-aligned content for mobile */
+    .right-aligned {
+        margin-right: 1rem;
+        max-width: 90%;
     }
 }
 
