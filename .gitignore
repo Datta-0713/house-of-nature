@@ -17,3 +17,7 @@ verify_audit.py
 verify_audit_urllib.py
 cleanup_data.py
 hon_deploy_package.zip
+# Allow HON folders
+!HON-1. Bamboo to Chairs/
+!HON-2. Chairs to Lamps/
+!HON-3. Lamps to Brand Text/
