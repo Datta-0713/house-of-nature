@@ -79,8 +79,7 @@ html {
 
 .right-aligned {
     margin-left: auto;
-    margin-right: 2%;
-    /* Move more to the right */
+    margin-right: 10%;
     max-width: 450px;
     /* White border removed */
 }
