@@ -190,6 +190,53 @@ function handleScroll() {
     }
 }
 
+// Mobile-only: position hint labels at the image boundary lines and toggle on scroll
+document.addEventListener('DOMContentLoaded', function () {
+    const hints = document.getElementById('mobile-scroll-hints');
+    const hintTop = document.getElementById('scroll-hint-top');
+    const hintBottom = document.getElementById('scroll-hint-bottom');
+    if (!hints || !hintTop || !hintBottom) return;
+    if (window.innerWidth > 768) return;
+
+    // Position the hints at the image edges once the first frame renders
+    function positionHints() {
+        if (state.imageTopY !== undefined && state.imageBotY !== undefined) {
+            // Top hint: right-aligned, sitting just above the top line
+            hintTop.style.top = (state.imageTopY - 22) + 'px';
+            // Bottom hint: left-aligned, sitting just below the bottom line
+            hintBottom.style.top = (state.imageBotY + 6) + 'px';
+            hintBottom.style.bottom = 'auto';
+        }
+    }
+
+    // Wait for preloader to finish and first frame to render
+    var posInterval = setInterval(function () {
+        if (state.imageTopY !== undefined) {
+            positionHints();
+            clearInterval(posInterval);
+        }
+    }, 200);
+
+    // Reposition on resize
+    window.addEventListener('resize', function () {
+        setTimeout(positionHints, 100);
+    });
+
+    // Toggle: hide when scrolled, show when scrolled back to top
+    function toggleHints() {
+        if (window.scrollY > 80) {
+            hints.classList.add('hidden');
+        } else {
+            hints.classList.remove('hidden');
+        }
+    }
+
+    // Delay listener attachment until after preloader
+    setTimeout(function () {
+        window.addEventListener('scroll', toggleHints, { passive: true });
+    }, 3000);
+});
+
 function performScrollCalculations() {
     const scrollY = window.scrollY;
 
@@ -308,6 +355,14 @@ function render() {
         }
 
         state.ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+        // Store image boundaries for mobile hint positioning
+        if (isMobile) {
+            const navbar = document.querySelector('.navbar');
+            const navH = navbar ? navbar.offsetHeight : 55;
+            state.imageTopY = navH + offsetY;
+            state.imageBotY = navH + offsetY + drawH;
+        }
     }
 }
 

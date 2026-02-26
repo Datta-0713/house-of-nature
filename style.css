@@ -82,13 +82,7 @@ html {
     margin-right: 2%;
     /* Move more to the right */
     max-width: 450px;
-    /* Clean white border around text for readability against strings */
-    text-shadow:
-        2px 2px 0 #ffffff,
-        -2px -2px 0 #ffffff,
-        2px -2px 0 #ffffff,
-        -2px 2px 0 #ffffff,
-        0 0 10px rgba(255, 255, 255, 0.8);
+    /* White border removed */
 }
 
 .center-aligned {
@@ -203,6 +197,56 @@ p {
     .right-aligned {
         margin-right: 1rem;
         max-width: 90%;
+    }
+}
+
+/* Mobile scroll hint labels - hidden on desktop */
+#mobile-scroll-hints {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #mobile-scroll-hints {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: 3;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+    }
+
+    #mobile-scroll-hints.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #scroll-hint-top {
+        position: absolute;
+        top: 70px;
+        right: 16px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 300;
+        color: #1a1a1a;
+        letter-spacing: 0.06em;
+        text-align: right;
+        opacity: 0.75;
+    }
+
+    #scroll-hint-bottom {
+        position: absolute;
+        bottom: 30px;
+        left: 16px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 300;
+        color: #1a1a1a;
+        letter-spacing: 0.06em;
+        text-align: left;
+        opacity: 0.75;
     }
 }
 
